@@ -1,0 +1,25 @@
+version: '2.2'
+
+services:
+  mailserver:
+    build: ./servermail
+    networks:
+      lan:
+        ipv4_address: 172.50.50.10
+  
+  webmail:
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@mail.com
+      - EMAIL_SERVER_HOST=172.50.50.10
+      - PORT=80
+    build: ./webmail
+    networks:
+      lan:
+        ipv4_address: 172.50.50.20
+
+networks:
+  lan:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.50.50.0/24
