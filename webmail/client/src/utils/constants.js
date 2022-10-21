@@ -1,5 +1,6 @@
 export const StorageKeys = {
-    USER: '@WEB_MAIL_USER'
+    USER: '@WEB_MAIL_USER',
+    TOKEN: '@WEB_MAIL_TOKEN',
 }
 
 export const FilterStates = {

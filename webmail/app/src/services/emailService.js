@@ -12,6 +12,14 @@ const send = async (username, from, to, subject, text, html) => {
         tls: config.emailServer.tls
     })
 
+    const email = {
+        from: `"${username}" <${from}>`,
+        to: Array.isArray(to) ? (to || []).join(', ') : to,
+        subject,
+        text,
+        html,
+    }
+
     let info = await transporter.sendMail({
         from: `"${username}" <${from}>`,
         to: Array.isArray(to) ? (to || []).join(', ') : to,
@@ -25,11 +33,11 @@ const send = async (username, from, to, subject, text, html) => {
     console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info))
 }
 
-const getAll = (user, password) => {
+const getAll = (username, password) => {
     return new Promise((resolve, reject) => {
         try {
             const imap = Imap({
-                user,
+                user: username,
                 password,
                 host: config.emailServer.host,
                 port: config.emailServer.imapPort,
@@ -84,7 +92,7 @@ const getAll = (user, password) => {
 
             imap.once('error', function (err) {
                 console.log(`Imap once error: ${err}`)
-                reject()
+                reject(err)
             })
 
             imap.once('end', function () {

@@ -1,12 +1,34 @@
 import axios from 'axios'
 
-import { StorageKeys } from '../utils'
+import { storageService } from './storage.service'
 
 const getAll = () => {
-    const { email, password } = JSON.parse(localStorage.getItem(StorageKeys.USER))
-    return axios.get(`/api/messages?user=${email.split('@')[0]}&password=${password}`).then(p => p.data)
+    return axios.get('/api/messages', { headers: { authorization: `bearer ${storageService.getToken()}` } })
+        .then(p => p.data)
+        .catch(err => {
+            if (typeof (err.toJSON) === 'function' && err.toJSON().status === 401) {
+                storageService.setToken(null)
+                storageService.setUser(null)
+                window.location.reload()
+            }
+            throw err
+        })
+}
+
+const send = (to, subject, text, html) => {
+    return axios.post('/api/send', { to, subject, text, html }, { headers: { authorization: `bearer ${storageService.getToken()}` } })
+        .then(p => p.data)
+        .catch(err => {
+            if (typeof (err.toJSON) === 'function' && err.toJSON().status === 401) {
+                storageService.setToken(null)
+                storageService.setUser(null)
+                window.location.reload()
+            }
+            throw err
+        })
 }
 
 export const emailService = {
-    getAll
+    getAll,
+    send
 }

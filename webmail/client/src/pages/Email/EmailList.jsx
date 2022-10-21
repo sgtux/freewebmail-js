@@ -26,7 +26,7 @@ export function EmailList() {
 
     const [emails, setEmails] = useState([])
     const [viewingEmail, setViewingEmail] = useState(false)
-    const [newEmail, setNewEmail] = useState({})
+    const [newEmail, setNewEmail] = useState()
 
     const filter = useSelector(state => state.appState.filter)
 

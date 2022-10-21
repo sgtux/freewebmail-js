@@ -1,8 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const restify = require('restify')
-const emailService = require('./services/emailService')
-const config = require('./config')
+const { emailService, userService, sessionService } = require('./services')
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
@@ -13,23 +12,32 @@ server
     .use(restify.plugins.queryParser())
     .use(restify.plugins.bodyParser())
 
+server.use((req, res, next) => {
+    if (req.url === '/api/token')
+        return next()
+    const token = (req.headers.authorization || '').replace(/(B|b)earer /, '')
+    const session = sessionService.getSession(token)
+    if (session) {
+        req.session = session
+        return next()
+    }
+    res.status(401)
+    res.end()
+})
+
 server.get('/api/messages', (req, res) => {
-    const { user, password } = (req.query || {})
-    if (!user || !password)
-        return res.end('Usuário ou senha inválidos.')
+    const { username } = req.session
 
-    const userDb = config.users.filter(p => p.username === user)[0]
-    if (!userDb || userDb.password !== password)
-        return res.end('Usuário ou senha inválidos.')
+    const password = userService.getByUsername(username).password
 
-    emailService.getAll(user, password)
+    emailService.getAll(username, password)
         .then(data => {
             console.log(`Messages: ${data.length}`)
             console.log(data)
             res.json(data)
         })
         .catch(err => {
-            console.log('ERRO ENCONTRADO!!!')
+            res.status(500)
             console.log(err)
             if (typeof (err) === 'string')
                 res.end(err)
@@ -52,11 +60,13 @@ server.get('/', function (req, res, next) {
 })
 
 server.post('/api/send', (req, res) => {
-    const { username, from, to, subject, text, html } = req.body || {}
 
-    if (username && from && to && subject && text && html) {
+    const { username } = req.session
+    const { to, subject, text, html } = req.body || {}
 
-        emailService.send(username, from, to, subject, text, html)
+    if (to && subject && (text || html)) {
+        const { email } = userService.getByUsername(username)
+        emailService.send(username, email, to, subject, text, html)
             .then(() => res.end('Success.'))
             .catch(err => {
                 console.log(err)
@@ -65,6 +75,26 @@ server.post('/api/send', (req, res) => {
     } else {
         res.end('Invalid Properties')
     }
+})
+
+server.post('/api/token', (req, res) => {
+    const { username, password } = req.body || {}
+    if (username && password) {
+        const user = userService.getByUsername(username)
+        if (user && user.password === password) {
+            const hash = sessionService.createSession(username)
+            res.json({ token: hash })
+            return
+        }
+    }
+    res.status(401)
+    res.end()
+})
+
+server.get('/api/account', (req, res) => {
+    const { username } = req.session
+    const { email } = userService.getByUsername(username)
+    res.json({ username, email })
 })
 
 const port = process.env.PORT || 3001

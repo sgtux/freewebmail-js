@@ -6,22 +6,33 @@ import { useDispatch } from 'react-redux'
 import { Container } from './styles'
 import { userChanged } from '../../store/actions'
 
+import { accountService, storageService } from '../../services'
+
 export function Auth() {
 
-    const [email, setEmail] = useState('')
+    const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [errorMessage, setErrorMessage] = useState('')
 
     const dispatch = useDispatch()
 
     useEffect(() => {
-    }, [email, password])
+    }, [username, password])
 
-    function login() {
-        if ((email === 'alice@webhacking.lab' || email === 'bob@webhacking.lab') && password === '123')
-            dispatch(userChanged({ email, password }))
-        else
-            setErrorMessage('Email/senha inválido.')
+    async function login() {
+
+        try {
+            const result = await accountService.login(username, password)
+            const { token } = result
+            storageService.setToken(token)
+            const data = await accountService.getData()
+            dispatch(userChanged(data))
+        } catch (err) {
+            if (typeof (err.toJSON) === 'function' && err.toJSON().status === 401)
+                setErrorMessage('Usuário ou senha inválidos.')
+            else
+                setErrorMessage('Erro desconhecido.')
+        }
     }
 
     return (
@@ -32,11 +43,11 @@ export function Auth() {
                     WEB MAIL
                 </Typography>
             </div>
-            <TextField required value={email} onChange={e => setEmail(e.target.value)} label="Email" variant="outlined" />
+            <TextField required value={username} onChange={e => setUsername(e.target.value)} label="Usuário" variant="outlined" />
             <br /><br />
             <TextField required type="password" value={password} onChange={e => setPassword(e.target.value)} label="Senha" variant="outlined" />
             <br /><br />
-            <Button disabled={!email || !password} onClick={() => login()} variant="contained">Entrar</Button>
+            <Button disabled={!username || !password} onClick={() => login()} variant="contained">Entrar</Button>
             <Typography style={{ marginTop: 10 }} color="red">{errorMessage}</Typography>
         </Container>
     )
