@@ -1,9 +1,9 @@
-import { StorageKeys } from '../../utils'
+import { StorageKeys, FilterStates } from '../../utils'
 import { ActionTypes } from '../actions'
 
 const initialState = {
     user: JSON.parse(localStorage.getItem(StorageKeys.USER)),
-    filter: 'inbox'
+    filter: FilterStates.INBOX
 }
 
 export const appReducer = (state = initialState, action) => {

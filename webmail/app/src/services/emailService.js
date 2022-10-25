@@ -12,14 +12,6 @@ const send = async (username, from, to, subject, text, html) => {
         tls: config.emailServer.tls
     })
 
-    const email = {
-        from: `"${username}" <${from}>`,
-        to: Array.isArray(to) ? (to || []).join(', ') : to,
-        subject,
-        text,
-        html,
-    }
-
     let info = await transporter.sendMail({
         from: `"${username}" <${from}>`,
         to: Array.isArray(to) ? (to || []).join(', ') : to,
@@ -33,7 +25,7 @@ const send = async (username, from, to, subject, text, html) => {
     console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info))
 }
 
-const getAll = (username, password) => {
+const getAll = (username, password, mailbox) => {
     return new Promise((resolve, reject) => {
         try {
             const imap = Imap({
@@ -47,7 +39,7 @@ const getAll = (username, password) => {
             const messages = []
 
             imap.once('ready', function () {
-                imap.openBox('INBOX', (err) => {
+                imap.openBox(mailbox, (err) => {
                     if (err) {
                         imap.end()
                         return reject(`ERRO AQUI (OPENED INBOX): ${err}`)
@@ -55,7 +47,7 @@ const getAll = (username, password) => {
 
                     //        imap.search(['UNSEEN', ['SINCE', new Date()]], (err, results) => {
 
-                    imap.search(['UNSEEN'], (err, results) => {
+                    imap.search([['SINCE', new Date(2020, 0, 1)]], (err, results) => {
                         console.log(results)
                         if (!(results || {}).length)
                             return resolve(messages)
@@ -65,7 +57,10 @@ const getAll = (username, password) => {
                             let attributes = null
                             msg.on('body', stream => {
                                 simpleParser(stream, (err, parsed) => {
-                                    messages.push({ attributes, ...parsed })
+                                    let read = false
+                                    if ((attributes || {}).flags)
+                                        read = attributes.flags.includes('\\Seen')
+                                    messages.push({ attributes, ...parsed, read })
                                     console.log('end parsed')
                                 })
                             })

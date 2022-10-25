@@ -18,23 +18,25 @@ import {
     EmailListFooter
 } from './styles'
 
-import { getFilterStateTranslated, toDateString, ellipsisText } from '../../utils'
+import { getFilterStateTranslated, toDateTimeString, ellipsisText } from '../../utils'
 
 import { NewEmailModal } from './NewEmailModal'
+import { ViewEmailModal } from './ViewEmailModal'
 
 export function EmailList() {
 
     const [emails, setEmails] = useState([])
-    const [viewingEmail, setViewingEmail] = useState(false)
+    const [viewEmail, setViewEmail] = useState()
     const [newEmail, setNewEmail] = useState()
 
     const filter = useSelector(state => state.appState.filter)
 
     useEffect(() => {
-        emailService.getAll()
+        console.log(filter)
+        emailService.getAll(filter)
             .then(res => setEmails(res))
             .catch(err => console.log(err))
-    }, [])
+    }, [filter])
 
     return (
         <EmailListContainer>
@@ -53,23 +55,23 @@ export function EmailList() {
                             secondaryAction={
                                 <div>
                                     <IconButton>
-                                        <DeleteIcon color='disabled' />
+                                        <DeleteIcon color='secondary' />
                                     </IconButton>
                                     <IconButton>
-                                        <MarkUnreadIcon color='disabled' />
+                                        <MarkUnreadIcon color='primary' />
                                     </IconButton>
-                                    <span style={{ fontSize: 12, color: grey[400] }}>{toDateString(e.attributes.date)}</span>
+                                    <span style={{ fontSize: 12, color: grey[400] }}>{toDateTimeString(e.attributes.date)}</span>
                                 </div>
                             }>
-                            <ListItemButton role={undefined} onClick={() => { setViewingEmail(true) }} dense>
+                            <ListItemButton role={undefined} onClick={() => { setViewEmail(e) }} dense>
                                 <ListItemText primary={
-                                    <Typography color="textPrimary">{e.from.text}</Typography>
+                                    <Typography color={e.read ? '#777' : '#FFF'}>{e.from.text}</Typography>
                                 } />
                                 <ListItemText primary={
-                                    <Typography color="textSecondary">{e.subject}</Typography>
+                                    <Typography color={e.read ? '#777' : '#FFF'}>{e.subject}</Typography>
                                 } />
                                 <ListItemText primary={
-                                    <Typography color="GrayText">{ellipsisText(e.text, 30)}</Typography>
+                                    <Typography color={e.read ? '#777' : '#FFF'}>{ellipsisText(e.text, 30)}</Typography>
                                 } />
                             </ListItemButton>
                         </ListItem>
@@ -80,6 +82,7 @@ export function EmailList() {
             } />}
             <EmailListFooter>Terms · Privacy · Program Policies </EmailListFooter>
             <NewEmailModal email={newEmail} onClose={() => setNewEmail(null)} />
+            <ViewEmailModal viewEmail={viewEmail} onClose={() => setViewEmail(null)} />
         </EmailListContainer>
     )
 }

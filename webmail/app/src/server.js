@@ -1,18 +1,17 @@
 const fs = require('fs')
 const path = require('path')
-const restify = require('restify')
+const express = require('express')
+const bodyParser = require('body-parser')
 const { emailService, userService, sessionService } = require('./services')
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
-const server = restify.createServer()
+const app = express()
 
-server
-    .use(restify.plugins.acceptParser(server.acceptable))
-    .use(restify.plugins.queryParser())
-    .use(restify.plugins.bodyParser())
+app.use(bodyParser.json())
+app.use(express.static('public'))
 
-server.use((req, res, next) => {
+app.use((req, res, next) => {
     if (req.url === '/api/token')
         return next()
     const token = (req.headers.authorization || '').replace(/(B|b)earer /, '')
@@ -25,12 +24,13 @@ server.use((req, res, next) => {
     res.end()
 })
 
-server.get('/api/messages', (req, res) => {
+app.get('/api/messages', (req, res) => {
     const { username } = req.session
+    const { mailbox } = (req.query || {})
 
     const password = userService.getByUsername(username).password
 
-    emailService.getAll(username, password)
+    emailService.getAll(username, password, mailbox)
         .then(data => {
             console.log(`Messages: ${data.length}`)
             console.log(data)
@@ -39,27 +39,11 @@ server.get('/api/messages', (req, res) => {
         .catch(err => {
             res.status(500)
             console.log(err)
-            if (typeof (err) === 'string')
-                res.end(err)
-            else
-                res.json(err)
+            res.end('Erro interno')
         })
 })
 
-server.get('/', function (req, res, next) {
-    fs.readFile(path.join(__dirname, '..', 'public/index.html'), function (err, data) {
-        if (err) {
-            next(err)
-            return
-        }
-        res.setHeader('Content-Type', 'text/html')
-        res.writeHead(200)
-        res.end(data)
-        next()
-    })
-})
-
-server.post('/api/send', (req, res) => {
+app.post('/api/send', (req, res) => {
 
     const { username } = req.session
     const { to, subject, text, html } = req.body || {}
@@ -77,7 +61,7 @@ server.post('/api/send', (req, res) => {
     }
 })
 
-server.post('/api/token', (req, res) => {
+app.post('/api/token', (req, res) => {
     const { username, password } = req.body || {}
     if (username && password) {
         const user = userService.getByUsername(username)
@@ -91,7 +75,7 @@ server.post('/api/token', (req, res) => {
     res.end()
 })
 
-server.get('/api/account', (req, res) => {
+app.get('/api/account', (req, res) => {
     const { username } = req.session
     const { email } = userService.getByUsername(username)
     res.json({ username, email })
@@ -99,4 +83,4 @@ server.get('/api/account', (req, res) => {
 
 const port = process.env.PORT || 3001
 
-server.listen(port, () => console.log(`Listening on ${port}`))
+app.listen(port, () => console.log(`Listening on ${port}`))

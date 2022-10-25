@@ -4,7 +4,7 @@ const EMAIL_SERVER_SMTP_PORT = process.env.EMAIL_SERVER_SMTP_PORT || 25
 const EMAIL_SERVER_TLS = process.env.EMAIL_SERVER_TLS || false
 const EMAIL_DOMAIN = process.env.EMAIL_DOMAIN || 'example.lab'
 const TOKEN_SECRET = process.env.TOKEN_SECRET || '123123123123'
-const SESSION_EXPIRE_IN_MINUTES = parseInt(process.env.SESSION_EXPIRE_IN_MINUTES || 10)
+const SESSION_EXPIRE_IN_MINUTES = parseInt(process.env.SESSION_EXPIRE_IN_MINUTES || 30)
 
 module.exports = {
     users: [

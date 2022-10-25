@@ -3,10 +3,11 @@
         "start": "nodemon --watch src src/server.js"
     },
     "dependencies": {
+        "body-parser": "^1.20.1",
+        "express": "^4.18.2",
         "imap": "^0.8.19",
         "mailparser": "^3.4.0",
-        "nodemailer": "^6.7.2",
-        "restify": "^8.6.1"
+        "nodemailer": "^6.7.2"
     },
     "devDependencies": {
         "nodemon": "^2.0.15"

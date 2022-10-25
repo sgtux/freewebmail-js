@@ -12,7 +12,6 @@ services:
   
   webmail:
     environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@mail.com
       - EMAIL_SERVER_HOST=172.50.50.10
       - PORT=80
       - EMAIL_DOMAIN=passbolt.poc

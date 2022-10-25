@@ -2,8 +2,8 @@ import axios from 'axios'
 
 import { storageService } from './storage.service'
 
-const getAll = () => {
-    return axios.get('/api/messages', { headers: { authorization: `bearer ${storageService.getToken()}` } })
+const getAll = mailbox => {
+    return axios.get(`/api/messages?mailbox=${mailbox}`, { headers: { authorization: `bearer ${storageService.getToken()}` } })
         .then(p => p.data)
         .catch(err => {
             if (typeof (err.toJSON) === 'function' && err.toJSON().status === 401) {

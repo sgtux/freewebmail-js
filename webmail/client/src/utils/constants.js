@@ -4,7 +4,7 @@ export const StorageKeys = {
 }
 
 export const FilterStates = {
-    INBOX: 'inbox',
+    INBOX: 'INBOX',
     IMPORTANT: 'important',
     SENT: 'sent',
     TRASH: 'trash'
