@@ -13,5 +13,10 @@ RUN apt update && \
     sed -i '/mail_location = mbox:~\/mail:INBOX=\/var\/mail\/%u/c\mail_location = maildir:\/home\/%u\/Maildir' /etc/dovecot/conf.d/10-mail.conf && \
     useradd -m -s /bin/bash -p $(openssl passwd -1 123) alice && \
     useradd -m -s /bin/bash -p $(openssl passwd -1 123) bob && \
-    chmod +x /root/init.sh    
+    useradd -m -s /bin/bash -p $(openssl passwd -1 123) charlie && \
+    useradd -m -s /bin/bash -p $(openssl passwd -1 123) dan && \
+    useradd -m -s /bin/bash -p $(openssl passwd -1 123) erin && \
+    useradd -m -s /bin/bash -p $(openssl passwd -1 123) frank && \
+    chmod +x /root/init.sh && \
+    chmod +x /root/createuser.sh
 CMD ["/root/init.sh"]

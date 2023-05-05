@@ -6,6 +6,6 @@ RUN apk add --update nodejs yarn && \
     yarn && \
     cd client && \
     yarn && \
-    yarn build && \
+    yarn build:prod && \
     rm -rf /app/client
 CMD ["yarn", "start"]

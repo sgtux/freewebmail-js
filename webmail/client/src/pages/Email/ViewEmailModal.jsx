@@ -1,12 +1,14 @@
-import { useEffect } from 'react'
-import { Button, TextField, Dialog, DialogContent, DialogTitle, Zoom } from "@mui/material";
+import { useEffect, useState } from 'react'
+import { Checkbox, Button, Dialog, DialogContent, DialogTitle, Zoom } from "@mui/material";
 
 
 export function ViewEmailModal({ viewEmail, onClose }) {
 
+    const [asHtml, setAsHtml] = useState(false)
+
     useEffect(() => {
         if (viewEmail) {
-            console.log(viewEmail)
+            setAsHtml(!!viewEmail.textAsHtml)
         }
     }, [viewEmail])
 
@@ -23,18 +25,25 @@ export function ViewEmailModal({ viewEmail, onClose }) {
                 </DialogTitle>
                 <DialogContent>
                     <div style={{ margin: '0 auto', marginTop: 10, maxWidth: 500, textAlign: 'center' }}>
-                        From: <span>{ viewEmail.from.text }</span>
+                        From: <span>{viewEmail.from.text}</span>
                     </div>
                     <div style={{ margin: '0 auto', marginTop: 10, maxWidth: 500, textAlign: 'center' }}>
-                        To: <span>{ viewEmail.to.text }</span>
+                        To: <span>{viewEmail.to.text}</span>
                     </div>
                     <div style={{ margin: '0 auto', marginTop: 10, maxWidth: 500, textAlign: 'center' }}>
-                        Subject: <span>{ viewEmail.subject }</span>
+                        Subject: <span>{viewEmail.subject}</span>
                     </div>
-                    <br />
-                    <br />
-                    <div style={{ margin: '0 auto', marginTop: 10, maxWidth: 500, textAlign: 'center' }}>
-                        Body: <span dangerouslySetInnerHTML={{__html: viewEmail.text }}></span>
+                    <div style={{ textAlign: 'center' }}>
+                        As Html: <Checkbox checked={asHtml} onChange={e => setAsHtml(e.target.checked)} />
+                    </div>
+                    <div style={{ margin: '0 auto', marginTop: 10, maxWidth: 800, textAlign: 'center' }}>
+                        <fieldset>
+                            <legend>Body</legend>
+                            {asHtml ?
+                                <span dangerouslySetInnerHTML={{ __html: viewEmail.textAsHtml }}></span>
+                                : <span>{viewEmail.textAsHtml}</span>
+                            }
+                        </fieldset>
                     </div>
                 </DialogContent>
                 <div style={{ marginBottom: 20, marginRight: 20, textAlign: 'end' }}>

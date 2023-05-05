@@ -17,7 +17,11 @@ export function Auth() {
     const dispatch = useDispatch()
 
     useEffect(() => {
-    }, [username, password])
+        if (username.includes('@'))
+            setErrorMessage('Just username, not email.')
+        else
+            setErrorMessage('')
+    }, [username])
 
     async function login() {
 

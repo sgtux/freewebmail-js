@@ -1,5 +1,3 @@
-const fs = require('fs')
-const path = require('path')
 const express = require('express')
 const bodyParser = require('body-parser')
 const { emailService, userService, sessionService } = require('./services')
@@ -12,6 +10,7 @@ app.use(bodyParser.json())
 app.use(express.static('public'))
 
 app.use((req, res, next) => {
+    console.log(`Path: ${req.url}`)
     if (req.url === '/api/token')
         return next()
     const token = (req.headers.authorization || '').replace(/(B|b)earer /, '')
@@ -81,6 +80,4 @@ app.get('/api/account', (req, res) => {
     res.json({ username, email })
 })
 
-const port = process.env.PORT || 3001
-
-app.listen(port, () => console.log(`Listening on ${port}`))
+module.exports = app

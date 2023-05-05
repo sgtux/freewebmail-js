@@ -1,12 +1,17 @@
 import styled from 'styled-components'
 
 export const Container = styled.div`
-    width: 240px;
-    height: 300px;
+    height: 400px;
     margin: 0 auto;
     margin-top: 60px;
-    border-radius: 10px;
     padding: 30px 100px;
-    border: 1px grey solid;
     text-align: center;
+`
+
+export const Title = styled.div`
+    font-weight: bold;
+    font-size: 50px;
+    color: #1877f2;
+                    
+                    
 `

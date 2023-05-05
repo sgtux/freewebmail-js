@@ -3,6 +3,7 @@ version: '2.2'
 services:
   mailserver:
     build: ./servermail
+    # image: sgtux/servermail
     environment:
       - DOMAIN_NAME=passbolt.poc
       - ALLOWED_NETWORKS=172.50.50.0/24
@@ -18,6 +19,7 @@ services:
       - TOKEN_SECRET=123123123123
       - SESSION_EXPIRE_IN_MINUTES=5
     build: ./webmail
+    # image: sgtux/webmail
     networks:
       lan:
         ipv4_address: 172.50.50.20
